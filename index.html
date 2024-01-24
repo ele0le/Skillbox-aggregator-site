@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Агрегатор данных</title>
+    </head>
+    <style>
+        * {
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        body {
+            padding: 40px 0;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+            font-size: 40px;
+        }
+
+        .info-blocks-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        
+        .info-block {
+            width: 200px;
+            height: 200px;
+            border: 1px solid grey;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        section {
+            width: 1000px;
+            margin: 0 auto;
+        }
+
+        .value {
+            margin-bottom: 40px;
+            font-size: 40px;
+        }
+    </style>
+    <script src="jquery-3.7.1.min.js"></script>
+    <script>
+        $(function(){
+            let api = 'api.php';
+            
+            let updateUsdRate = function() {
+                let request = {'url': 'https://www.cbr.ru/'};
+                $.get(api, request, function(response){
+                    let result = $(response).find('._dollar + div').text();
+                    $('#usd-rate > .value').text(result);
+                    //document.querySelector('._dollar + div') <div class="col-md-2 col-xs-9 _right mono-num">87,9724 ₽</div>
+                });
+                //90,3380 ₽
+            }
+
+            let updateMoscowWeather = function() {
+                let request = {'url': 'https://pogoda.mail.ru/prognoz/moskva/'};
+                $.get(api, request, function(response){
+                    let result = $(response).find('.information__content__temperature').text();
+                    $('#moscow-weather > .value').text(result + "C");
+                });
+                //+25&deg;С
+            }
+
+            let updateRuWikiArticlesCount = function() {
+                let request = {'url': 'https://ru.wikipedia.org/wiki/%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B0%D1%8F_%D0%92%D0%B8%D0%BA%D0%B8%D0%BF%D0%B5%D0%B4%D0%B8%D1%8F'};
+                $.get(api, request, function(response){
+                    let result = $(response).find('[title="Служебная:Статистика"]').first().text();
+                    $('#ruwiki-articles-count > .value').text(result);
+                });
+                //1 959 817 
+            }
+
+            let updateSiteStatus = function() {
+                let request = {'url': 'https://cx92708.tw1.ru/'};
+                $.get(api, request, function(response){
+                    let result = response.indexOf('Оставьте заявку') > 0 ? 'Работает' : 'Сломался';
+                    $('#site-status > .value').text(result);
+                });
+                //Работает
+            }
+            let updateAllData = function() {
+                updateUsdRate();
+                updateMoscowWeather();
+                updateRuWikiArticlesCount();
+                updateSiteStatus();
+            }
+
+            updateAllData();
+            setInterval(updateAllData, 5000);
+        });
+    </script>
+    <body>
+        <section>
+            <h1>Агрегатор данных с сайтов</h1>
+        </section>
+        <section class="info-blocks-container">
+            <div class="info-block" id="usd-rate">
+                <h2>Курс доллара</h2>
+                <span class="value">&mdash;</span>
+            </div>
+            <div class="info-block" id="moscow-weather">
+                <h2>Температура в&nbsp;Москве</h2>
+                <span class="value">&mdash;</span>
+            </div>
+            <div class="info-block" id="ruwiki-articles-count">
+                <h2>Статьи в&nbsp;Википедии</h2>
+                <span class="value">&mdash;</span>
+            </div>
+            <div class="info-block" id="site-status">
+                <h2>Статус работы сайта</h2>
+                <span class="value">&mdash;</span>
+            </div>
+        </section>
+    </body>
+</html>
